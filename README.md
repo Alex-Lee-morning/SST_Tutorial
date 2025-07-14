@@ -12,11 +12,10 @@
    * Windows
    * Ubuntu
    * macOS
-3. 🔐 设置 SSH 公私钥
-4. 🔥 编写防火墙规则
-5. 🌐 通过 Tailscale 设置内网互联
-6. ✅ 测试远程连接
-7. 🧰 常见问题与故障排查
+3. 🔥 编写防火墙规则
+4. 🌐 通过 Tailscale 设置内网互联
+5. ✅ 测试远程连接
+6. 🧰 常见问题与故障排查
 
 ---
 
@@ -24,9 +23,8 @@
 
 需要的工具：
 
-* GitHub 账号
-* 经常用的终端工具 (Terminal / PowerShell)
-* Tailscale 账号
+* GitHub 账号(或者其他账号用于Tailscale登陆)
+* 经常用的终端工具 (Terminal / PowerShell / zsh)
 
 ---
 
@@ -34,7 +32,7 @@
 
 ### 🪠 Windows 11
 
-#### 检查 OpenSSH 是否已安装：
+#### 检查 OpenSSH 是否已安装(如果不确定是否安装)：
 
 ```powershell
 Get-WindowsCapability -Online | ? Name -like 'OpenSSH*'
@@ -51,6 +49,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 
 ```powershell
 Start-Service sshd
+#如果需要设置开机自启
 Set-Service -Name sshd -StartupType 'Automatic'
 ```
 
@@ -61,50 +60,35 @@ Set-Service -Name sshd -StartupType 'Automatic'
 ```bash
 sudo apt update
 sudo apt install openssh-server
+#设置开机自启
 sudo systemctl enable ssh
 sudo systemctl start ssh
+#手动启动
+sudo service ssh start
 ```
 
 ---
 
 ### 🍏 macOS
 
-默认已内置 SSH 服务，启用：
+使用Homebrew 安装Open-ssh service
 
+⚠️安装Homebrew(如果已安装请跳过)
 ```bash
-sudo systemsetup -setremotelogin on
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-查看服务状态：
-
 ```bash
-sudo systemsetup -getremotelogin
+brew install openssh
 ```
 
 ---
 
-## 3. 🔐 生成 SSH 公私钥
-
-适用于全系统：
-
-```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
-
-常用文件位置：
-
-* 公钥：`~/.ssh/id_ed25519.pub`
-* 私钥：`~/.ssh/id_ed25519`
-
-建议添加到 GitHub 使用免密登陆。
-
----
-
-## 4. 🔥 防火墙配置
+## 3. 🔥 防火墙配置
 
 ### 🪠 Windows Defender 防火墙
 
-打开端口 22:
+打开端口 22:(通常默认端口为22)
 
 ```powershell
 New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Port 22' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
@@ -114,14 +98,32 @@ New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Port 22' -Enabled True -Dir
 
 ### 🤓 Ubuntu UFW
 
+默认端口22
+
 ```bash
+#允许防火墙通过ssh协议
 sudo ufw allow ssh
+#启用防火墙
 sudo ufw enable
 ```
 
 ---
 
-## 5. 🌐 Tailscale 内网互联配置
+### 🔒 macOS 防火墙说明
+
+macOS 默认允许 SSH 远程连接，无需额外配置防火墙。
+
+但如果你开启了系统防火墙或使用第三方防火墙，请确认允许 `sshd` 服务接收入站连接：
+
+```bash
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/sbin/sshd
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /usr/sbin/sshd
+```
+
+---
+
+
+## 4. 🌐 Tailscale 内网互联配置
 
 ### 📅 安装 Tailscale
 
@@ -141,30 +143,43 @@ brew install --cask tailscale
 open /Applications/Tailscale.app
 ```
 
+---
+
+替换方法
+进入官网使用.pkg方式下载
+
+
 #### Windows
 
-安装后打开 App 登录即可
+同Mac和Linux
 
 ### 📡 查看 IP
 
 ```bash
+#查看tailscale分配的ip
 tailscale ip
+#查看当前tailscale账户下连接的设备
 tailscale status
 ```
 
 ---
 
-## 6. ✅ 测试连接
+## 5. ✅ 测试连接
 
 示例：
 
 ```bash
-ssh username@100.x.x.x
+#输出ip
+tailscale status
+#尝试ping通ip
+ping ip
+#ssh连接
+ssh 用户名@ip
 ```
 
 ---
 
-## 7. 🧰 常见问题与故障排查
+## 6. 🧰 常见问题与故障排查
 
 * `Permission denied (publickey)`：确保公钥已上传
 * 无法连接：检查 22 端口是否已打开
