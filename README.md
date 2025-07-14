@@ -16,6 +16,7 @@
 4. 🌐 通过 Tailscale 设置内网互联
 5. ✅ 测试远程连接
 6. 🧰 常见问题与故障排查
+7. 🚨使用VSCode的Remote-SSH扩展与tailscale配合实现远程访问和调试
 
 ---
 
@@ -213,6 +214,27 @@ ping ip
 ### Window篇
 
 ---
+
+## 🚨 使用VSCode的Remote-SSH扩展与tailscale配合实现远程访问和调试
+
+### 示例 以MacOS和Linux
+
+#### ⚠️ 前置条件
+两机需要均安装VSCode，并且需要登陆Tailscale。
+---
+
+MacOS（Client）需要在VSCode内安装Remote-SSH扩展
+
+1. 按下shift+cmd+p打开命令面板
+2. 输入：Remote-SSH: Connect to Host...
+3. 输入ssh user@ip
+* 第一次进行时VSCode会显示远程安装VSCode Server到服务器端
+* 显示连接日志
+4. 连接成功后左下角会显示ssh地址
+
+🤔 如何关闭？
+1. 直接关闭VSCode会默认断开ssh连接
+2. 点击左下角绿色箭头或者ssh地址选择 Close Remote Connection
 
 ## 👨‍💻 作者
 
