@@ -71,6 +71,13 @@ sudo service ssh start
 
 ### 🍏 macOS
 
+⚠️MacOS一般自带Openssh服务，可以使用
+```bash
+which ssh
+#或者
+ssh -V
+```
+
 使用Homebrew 安装Open-ssh service
 
 ⚠️安装Homebrew(如果已安装请跳过)
@@ -86,14 +93,14 @@ brew install openssh
 
 ## 3. 🔥 防火墙配置
 
-### 🪠 Windows Defender 防火墙
+### 🪠 Windows Defender 防火墙（未完善）
 
 打开端口 22:(通常默认端口为22)
 
 ```powershell
 New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Port 22' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
 ```
-
+当然也可以通过图形化界面自行配置防火墙规则
 ---
 
 ### 🤓 Ubuntu UFW
@@ -145,13 +152,12 @@ open /Applications/Tailscale.app
 
 ---
 
-替换方法
+### 💡替换方法
 进入官网使用.pkg方式下载
 
 
 #### Windows
-
-同Mac和Linux
+🤔使用官网的安装包下载即可
 
 ### 📡 查看 IP
 
@@ -181,9 +187,30 @@ ssh 用户名@ip
 
 ## 6. 🧰 常见问题与故障排查
 
-* `Permission denied (publickey)`：确保公钥已上传
-* 无法连接：检查 22 端口是否已打开
-* Tailscale 未启动：试试 `sudo tailscale up` 重启
+### Linux篇
+
+输入
+```bash
+tailscale status
+```
+显示
+```bash
+100.0.0.0    user-ubuntu          user@ linux   -
+```
+并且ssh无法连接的情况
+可以尝试输入
+```bash
+ping ip
+```
+然后返回重新查看。若返回
+```bash
+100.0.0.0    user-ubuntu          user@ linux   active
+```
+则可以正常开始ssh连接
+
+### MacOS篇
+
+### Window篇
 
 ---
 
