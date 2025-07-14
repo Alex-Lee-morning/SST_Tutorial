@@ -1,6 +1,6 @@
 # 🌐 跨平台远程访问配置教程 (OpenSSH + 防火墙 + Tailscale)
 
-> 支持系统：Windows 11 / Ubuntu 22.04+ / macOS Ventura+
+> 支持系统：Windows 11 / Ubuntu 24.04+ / MacOS M系列
 
 ---
 
@@ -174,5 +174,4 @@ ssh username@100.x.x.x
 
 ## 👨‍💻 作者
 
-* GitHub：[@你的用户名](https://github.com/your-username)
-* 博客/网站：自行填充
+* GitHub：[@Alex-Lee-morning](https://github.com/Alex-Lee-morning)
