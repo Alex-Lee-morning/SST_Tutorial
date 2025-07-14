@@ -220,8 +220,8 @@ ping ip
 ### 示例 以MacOS和Linux
 
 #### ⚠️ 前置条件
+
 两机需要均安装VSCode，并且需要登陆Tailscale。
----
 
 MacOS（Client）需要在VSCode内安装Remote-SSH扩展
 
