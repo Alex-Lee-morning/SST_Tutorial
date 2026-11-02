@@ -1,56 +1,56 @@
-# 🌐 跨平台远程访问配置教程 (OpenSSH + 防火墙 + Tailscale)
+# 🌐 Cross-Platform Remote Access Setup (OpenSSH + Firewall + Tailscale)
 
-> 支持系统：Windows 11 / Ubuntu 24.04+ / MacOS M系列
+> Supported systems: Windows 11 / Ubuntu 24.04+ / macOS (Apple Silicon)
 
 ---
 
-## 目录
+## Table of Contents
 
-1. 🔧 环境准备
-2. 🛠 安装并配置 OpenSSH
+1. 🔧 Prerequisites
+2. 🛠 Install and Configure OpenSSH
 
    * Windows
    * Ubuntu
    * macOS
-3. 🔥 编写防火墙规则
-4. 🌐 通过 Tailscale 设置内网互联
-5. ✅ 测试远程连接
-6. 🧰 常见问题与故障排查
-7. 🚨使用VSCode的Remote-SSH扩展与tailscale配合实现远程访问和调试
+3. 🔥 Firewall Rules
+4. 🌐 Connect Devices with Tailscale
+5. ✅ Test the Remote Connection
+6. 🧰 Troubleshooting
+7. 🚨 Remote Access and Debugging with VS Code Remote-SSH and Tailscale
 
 ---
 
-## 1. 🔧 环境准备
+## 1. 🔧 Prerequisites
 
-需要的工具：
+You will need:
 
-* GitHub 账号(或者其他账号用于Tailscale登陆)
-* 经常用的终端工具 (Terminal / PowerShell / zsh)
+* A GitHub account (or another account you can use to sign in to Tailscale)
+* A terminal you use regularly (Terminal / PowerShell / zsh)
 
 ---
 
-## 2. 🛠 安装并配置 OpenSSH
+## 2. 🛠 Install and Configure OpenSSH
 
 ### 🪠 Windows 11
 
-#### 检查 OpenSSH 是否已安装(如果不确定是否安装)：
+#### Check whether OpenSSH is already installed (if you are not sure):
 
 ```powershell
 Get-WindowsCapability -Online | ? Name -like 'OpenSSH*'
 ```
 
-#### 安装客户端和服务端：
+#### Install the client and the server:
 
 ```powershell
 Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 ```
 
-#### 启用服务：
+#### Start the service:
 
 ```powershell
 Start-Service sshd
-#如果需要设置开机自启
+# Start automatically at boot
 Set-Service -Name sshd -StartupType 'Automatic'
 ```
 
@@ -61,10 +61,10 @@ Set-Service -Name sshd -StartupType 'Automatic'
 ```bash
 sudo apt update
 sudo apt install openssh-server
-#设置开机自启
+# Enable the service at boot
 sudo systemctl enable ssh
 sudo systemctl start ssh
-#手动启动
+# Start the service manually
 sudo service ssh start
 ```
 
@@ -72,16 +72,18 @@ sudo service ssh start
 
 ### 🍏 macOS
 
-⚠️MacOS一般自带Openssh服务，可以使用
+⚠️ macOS usually ships with an OpenSSH client. You can check with:
+
 ```bash
 which ssh
-#或者
+# or
 ssh -V
 ```
 
-使用Homebrew 安装Open-ssh service
+Install the OpenSSH server with Homebrew.
 
-⚠️安装Homebrew(如果已安装请跳过)
+⚠️ Install Homebrew first (skip this if it is already installed):
+
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
@@ -92,36 +94,38 @@ brew install openssh
 
 ---
 
-## 3. 🔥 防火墙配置
+## 3. 🔥 Firewall Configuration
 
-### 🪠 Windows Defender 防火墙（未完善）
+### 🪠 Windows Defender Firewall (incomplete)
 
-打开端口 22:(通常默认端口为22)
+Open port 22 (the default SSH port):
 
 ```powershell
 New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Port 22' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
 ```
-当然也可以通过图形化界面自行配置防火墙规则
+
+You can also create the firewall rule through the graphical interface.
+
 ---
 
 ### 🤓 Ubuntu UFW
 
-默认端口22
+Default port: 22
 
 ```bash
-#允许防火墙通过ssh协议
+# Allow SSH through the firewall
 sudo ufw allow ssh
-#启用防火墙
+# Enable the firewall
 sudo ufw enable
 ```
 
 ---
 
-### 🔒 macOS 防火墙说明
+### 🔒 macOS Firewall Notes
 
-macOS 默认允许 SSH 远程连接，无需额外配置防火墙。
+macOS allows SSH remote connections by default, so no extra firewall setup is required.
 
-但如果你开启了系统防火墙或使用第三方防火墙，请确认允许 `sshd` 服务接收入站连接：
+If you have turned on the system firewall or use a third-party firewall, make sure `sshd` is allowed to receive inbound connections:
 
 ```bash
 sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/sbin/sshd
@@ -130,12 +134,11 @@ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /usr/sbin/sshd
 
 ---
 
+## 4. 🌐 Connect Devices with Tailscale
 
-## 4. 🌐 Tailscale 内网互联配置
+### 📅 Install Tailscale
 
-### 📅 安装 Tailscale
-
-官网：[https://tailscale.com/download](https://tailscale.com/download)
+Download page: [https://tailscale.com/download](https://tailscale.com/download)
 
 #### Ubuntu
 
@@ -153,89 +156,98 @@ open /Applications/Tailscale.app
 
 ---
 
-### 💡替换方法
-进入官网使用.pkg方式下载
+### 💡 Alternative install method
 
+Download the `.pkg` installer from the official website.
 
 #### Windows
-🤔使用官网的安装包下载即可
 
-### 📡 查看 IP
+🤔 Download and run the official installer from the website.
+
+### 📡 Check the IP address
 
 ```bash
-#查看tailscale分配的ip
+# Show the IP address assigned by Tailscale
 tailscale ip
-#查看当前tailscale账户下连接的设备
+# List devices on the current Tailscale account
 tailscale status
 ```
 
 ---
 
-## 5. ✅ 测试连接
+## 5. ✅ Test the Connection
 
-示例：
+Example:
 
 ```bash
-#输出ip
+# Print the IP address
 tailscale status
-#尝试ping通ip
+# Try to ping the IP
 ping ip
-#ssh连接
-ssh 用户名@ip
+# Connect over SSH
+ssh username@ip
 ```
 
 ---
 
-## 6. 🧰 常见问题与故障排查
+## 6. 🧰 Troubleshooting
 
-### Linux篇
+### Linux
 
-输入
+Run:
+
 ```bash
 tailscale status
 ```
-显示
+
+If the output looks like this:
+
 ```bash
 100.0.0.0    user-ubuntu          user@ linux   -
 ```
-并且ssh无法连接的情况
-可以尝试输入
+
+and SSH cannot connect, try:
+
 ```bash
 ping ip
 ```
-然后返回重新查看。若返回
+
+Then check the status again. If it now shows:
+
 ```bash
 100.0.0.0    user-ubuntu          user@ linux   active
 ```
-则可以正常开始ssh连接
 
-### MacOS篇
+you can start the SSH connection.
 
-### Window篇
+### macOS
+
+### Windows
 
 ---
 
-## 🚨 使用VSCode的Remote-SSH扩展与tailscale配合实现远程访问和调试
+## 🚨 Remote Access and Debugging with VS Code Remote-SSH and Tailscale
 
-### 示例 以MacOS和Linux
+### Example: macOS and Linux
 
-#### ⚠️ 前置条件
+#### ⚠️ Prerequisites
 
-两机需要均安装VSCode，并且需要登陆Tailscale。
+Both machines need VS Code installed, and both need to be signed in to Tailscale.
 
-MacOS（Client）需要在VSCode内安装Remote-SSH扩展
+On macOS (the client), install the Remote-SSH extension in VS Code.
 
-1. 按下shift+cmd+p打开命令面板
-2. 输入：Remote-SSH: Connect to Host...
-3. 输入ssh user@ip
-* 第一次进行时VSCode会显示远程安装VSCode Server到服务器端
-* 显示连接日志
-4. 连接成功后左下角会显示ssh地址
+1. Press `Shift+Cmd+P` to open the Command Palette.
+2. Type: `Remote-SSH: Connect to Host...`
+3. Enter `ssh user@ip`.
+   * The first time, VS Code installs the VS Code Server on the remote machine.
+   * A connection log is shown.
+4. After a successful connection, the SSH address appears in the lower-left corner.
 
-🤔 如何关闭？
-1. 直接关闭VSCode会默认断开ssh连接
-2. 点击左下角绿色箭头或者ssh地址选择 Close Remote Connection
+🤔 How do you disconnect?
 
-## 👨‍💻 作者
+1. Closing VS Code disconnects the SSH session by default.
+2. Click the green arrow or the SSH address in the lower-left corner and choose **Close Remote Connection**.
 
-* GitHub：[@Alex-Lee-morning](https://github.com/Alex-Lee-morning)
+## 👨‍💻 Author
+
+* GitHub: [@Alex-Lee-morning](https://github.com/Alex-Lee-morning)
